@@ -114,7 +114,7 @@ require('nightfox').setup({
 	}
 })
 -- vim.cmd [[colorscheme nightfox]] --nightfox, duskfox, nordfox, carbonfox
-vim.cmd [[colorscheme carbonfox]]
+vim.cmd [[colorscheme duskfox]]
 
 -- Material Theme config
 require('material').setup({
