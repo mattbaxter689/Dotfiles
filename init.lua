@@ -80,20 +80,43 @@ require("packer").startup(function(use)
 	use {'akinsho/bufferline.nvim', tag = "v2.*", requires = 'kyazdani42/nvim-web-devicons'}
 
 	-- LSP 
-	use 'neovim/nvim-lspconfig' -- Collection of configurations for built-in LSP client
-	use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
-	use 'hrsh7th/cmp-nvim-lsp'
-	use 'saadparwaiz1/cmp_luasnip'
-	use 'L3MON4D3/LuaSnip' -- Snippets plugin
-
-	-- Lsp-kind VSCODE pictures
-	use 'onsails/lspkind-nvim'
+	-- use 'neovim/nvim-lspconfig' -- Collection of configurations for built-in LSP client
+	-- use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
+	-- use 'hrsh7th/cmp-nvim-lsp'
+	-- use 'saadparwaiz1/cmp_luasnip'
+	-- use 'L3MON4D3/LuaSnip' -- Snippets plugin
+	--
+	-- -- Lsp-kind VSCODE pictures
+	-- use 'onsails/lspkind-nvim'
+	-- use {
+	-- 	'ray-x/lsp_signature.nvim',
+	-- 	config = function()
+	-- 		require "lsp_signature".setup()
+	-- 	end
+	-- }
+	--
+	-- trying Lsp zero
 	use {
-		'ray-x/lsp_signature.nvim',
-		config = function()
-			require "lsp_signature".setup()
-		end
+	'VonHeikemen/lsp-zero.nvim',
+		requires = {
+    -- LSP Support
+		{'neovim/nvim-lspconfig'},
+		{'williamboman/mason.nvim'},
+		{'williamboman/mason-lspconfig.nvim'},
+
+    -- Autocompletion
+		{'hrsh7th/nvim-cmp'},
+		{'hrsh7th/cmp-buffer'},
+		{'hrsh7th/cmp-path'},
+		{'saadparwaiz1/cmp_luasnip'},
+		{'hrsh7th/cmp-nvim-lsp'},
+		{'hrsh7th/cmp-nvim-lua'},
+
+    -- Snippets
+		{'L3MON4D3/LuaSnip'},
+		{'rafamadriz/friendly-snippets'},
 	}
+}
 
 end)
 
@@ -320,91 +343,141 @@ vim.api.nvim_set_keymap("n", "mn", ":BufferLineMoveNext<CR>", { noremap = true})
 vim.api.nvim_set_keymap("n", "mp", ":BufferLineMovePrev<CR>", { noremap = true})
 
 ------------------- LSP -----------------------------
--- need to set this up
--- Diagnostic keymapping
-vim.api.nvim_set_keymap('n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true, silent = true })
+-- Enter LSP zero here
+--
+local lsp = require("lsp-zero")
 
--- Refer to the kickstart.nvim file provided by the nvim-cmp people/ lsp-config completion person
-local lspconfig = require 'lspconfig'
- local on_attach = function(_, bufnr)
-	require("lsp_signature").setup({
-		bind = true,
-		handler_opts ={
-			border = "rounded"
-		}
-	}, bufnr)
-	local opts = { noremap = true, silent = true }
-end
+lsp.preset("recommended")
 
--- nvim-cmp supports additional completion capabilities
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
--- Enable the following language servers
-local servers = { 'pyright', 'gopls', 'eslint', 'r_language_server', "vuels" }
-for _, lsp in ipairs(servers) do
-	lspconfig[lsp].setup {
-		on_attach = on_attach,
-		capabilities = capabilities,
-	}	
-end
-
--- cmp
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
-local lspkind = require  'lspkind'
-cmp.setup({
-  mapping = {
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-    ["<C-p>"] = cmp.mapping.select_prev_item(),
-    ["<C-n>"] = cmp.mapping.select_next_item(),
-    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-    ["<C-e>"] = cmp.mapping.close(),
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif require("luasnip").expand_or_jumpable() then
-        require("luasnip").expand_or_jump()
-      elseif has_words_before() then
-        cmp.complete()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif require("luasnip").jumpable(-1) then
-        require("luasnip").jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-  },
-  snippet = {
-    expand = function(args)
-      require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
-    end,
-  },
-  sources = { { name = "nvim_lsp" }, { name = "luasnip" } },
-  completion = { completeopt = "menu,menuone,noinsert" },
+lsp.ensure_installed({
+	'pyright',
+	'gopls',
+	'eslint',
+	'vuels',
 })
 
+local cmp = require("cmp")
+local cmp_select = {behavior = cmp.SelectBehavior.Select}
+local cmp_mappings = lsp.defaults.cmp_mappings({
+  ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
+  ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
+  ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+  ["<C-Space>"] = cmp.mapping.complete(),
+})
 
-cmp.setup.cmdline(':', {
-  mapping = cmp.mapping.preset.cmdline(), -- important!
-  sources = {
-    { name = 'nvim_lua' },
-    { name = 'cmdline' },
-  },
+lsp.setup_nvim_cmp({
+  mapping = cmp_mappings
 })
-cmp.setup.cmdline('/', {
-  mapping = cmp.mapping.preset.cmdline(), -- important!
-  sources = {
-    { name = 'buffer' },
-  },
-})
+
+lsp.on_attach(function(client, bufnr)
+  local opts = {buffer = bufnr, remap = false}
+
+  if client.name == "eslint" then
+      vim.cmd.LspStop('eslint')
+      return
+  end
+
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+  vim.keymap.set("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
+  vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, opts)
+  vim.keymap.set("n", "[d", vim.diagnostic.goto_next, opts)
+  vim.keymap.set("n", "]d", vim.diagnostic.goto_prev, opts)
+  vim.keymap.set("n", "<leader>vca", vim.lsp.buf.code_action, opts)
+  vim.keymap.set("n", "<leader>vrr", vim.lsp.buf.references, opts)
+  vim.keymap.set("n", "<leader>vrn", vim.lsp.buf.rename, opts)
+  vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, opts)
+end)
+
+lsp.setup()
+
+
+
+-- -- need to set this up
+-- -- Diagnostic keymapping
+-- vim.api.nvim_set_keymap('n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('n', '<leader>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true, silent = true })
+--
+-- -- Refer to the kickstart.nvim file provided by the nvim-cmp people/ lsp-config completion person
+-- local lspconfig = require 'lspconfig'
+--  local on_attach = function(_, bufnr)
+-- 	require("lsp_signature").setup({
+-- 		bind = true,
+-- 		handler_opts ={
+-- 			border = "rounded"
+-- 		}
+-- 	}, bufnr)
+-- 	local opts = { noremap = true, silent = true }
+-- end
+--
+-- -- nvim-cmp supports additional completion capabilities
+-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+--
+-- -- Enable the following language servers
+-- local servers = { 'pyright', 'gopls', 'eslint', 'r_language_server', "vuels" }
+-- for _, lsp in ipairs(servers) do
+-- 	lspconfig[lsp].setup {
+-- 		on_attach = on_attach,
+-- 		capabilities = capabilities,
+-- 	}	
+-- end
+--
+-- -- cmp
+-- local cmp = require 'cmp'
+-- local luasnip = require 'luasnip'
+-- local lspkind = require  'lspkind'
+-- cmp.setup({
+--   mapping = {
+--     ["<CR>"] = cmp.mapping.confirm({ select = true }),
+--     ["<C-p>"] = cmp.mapping.select_prev_item(),
+--     ["<C-n>"] = cmp.mapping.select_next_item(),
+--     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+--     ["<C-f>"] = cmp.mapping.scroll_docs(4),
+--     ["<C-e>"] = cmp.mapping.close(),
+--     -- ["<Tab>"] = cmp.mapping(function(fallback)
+--     --   if cmp.visible() then
+--     --     cmp.select_next_item()
+--     --   elseif require("luasnip").expand_or_jumpable() then
+--     --     require("luasnip").expand_or_jump()
+--     --   elseif has_words_before() then
+--     --     cmp.complete()
+--     --   else
+--     --     fallback()
+--     --   end
+--     -- end, { "i", "s" }),
+--     -- ["<S-Tab>"] = cmp.mapping(function(fallback)
+--     --   if cmp.visible() then
+--     --     cmp.select_prev_item()
+--     --   elseif require("luasnip").jumpable(-1) then
+--     --     require("luasnip").jump(-1)
+--     --   else
+--     --     fallback()
+--     --   end
+--     -- end, { "i", "s" }),
+--   },
+--   snippet = {
+--     expand = function(args)
+--       require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
+--     end,
+--   },
+--   sources = { { name = "nvim_lsp" }, { name = "luasnip" } },
+--   completion = { completeopt = "menu,menuone,noinsert" },
+-- })
+--
+--
+-- cmp.setup.cmdline(':', {
+--   mapping = cmp.mapping.preset.cmdline(), -- important!
+--   sources = {
+--     { name = 'nvim_lua' },
+--     { name = 'cmdline' },
+--   },
+-- })
+-- cmp.setup.cmdline('/', {
+--   mapping = cmp.mapping.preset.cmdline(), -- important!
+--   sources = {
+--     { name = 'buffer' },
+--   },
+-- })
