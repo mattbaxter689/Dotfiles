@@ -175,6 +175,11 @@ _G.packer_plugins = {
     path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/nightfox.nvim",
     url = "https://github.com/EdenEast/nightfox.nvim"
   },
+  ["nord.nvim"] = {
+    loaded = true,
+    path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/nord.nvim",
+    url = "https://github.com/shaunsingh/nord.nvim"
+  },
   ["nvim-cmp"] = {
     loaded = true,
     path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/nvim-cmp",
@@ -211,6 +216,11 @@ _G.packer_plugins = {
     path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/pears.nvim",
     url = "https://github.com/steelsojka/pears.nvim"
   },
+  sonokai = {
+    loaded = true,
+    path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/sonokai",
+    url = "https://github.com/sainnhe/sonokai"
+  },
   tagbar = {
     loaded = true,
     path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/tagbar",
@@ -225,6 +235,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/tokyonight.nvim",
     url = "https://github.com/folke/tokyonight.nvim"
+  },
+  ["vim-nightfly-colors"] = {
+    loaded = true,
+    path = "/Users/matthewbaxter/.local/share/nvim/site/pack/packer/start/vim-nightfly-colors",
+    url = "https://github.com/bluz71/vim-nightfly-colors"
   },
   vimtex = {
     loaded = true,

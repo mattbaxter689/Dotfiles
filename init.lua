@@ -54,6 +54,9 @@ require("packer").startup(function(use)
 	use 'marko-cerovac/material.nvim'
 	use { 'AhmedAbdulrahman/aylin.vim', branch = '0.5-nvim'}
 	use 'frenzyexists/aquarium-vim'
+	use 'bluz71/vim-nightfly-colors'
+	use 'sainnhe/sonokai'
+	use 'shaunsingh/nord.nvim'
 
 
 	-- To use R
@@ -136,8 +139,15 @@ require('nightfox').setup({
 		transparent = true,
 	}
 })
+
+-- Nord config
+--
+vim.g.nord_bold = false
+vim.g.nord_italic = false
+
 -- vim.cmd [[colorscheme nightfox]] --nightfox, duskfox, nordfox, carbonfox
-vim.cmd [[colorscheme duskfox]]
+vim.g.sonokai_style = 'espresso'
+-- vim.cmd [[colorscheme nord]]
 
 -- Material Theme config
 require('material').setup({
@@ -147,13 +157,13 @@ require('material').setup({
 	disable = {
 		borders = true,
 	},
-	lualine_style = 'default'
+	lualine_style = 'stealth'
 })
-vim.g.material_style = 'palenight' --oceanic, deep ocean, palenight 
+vim.g.material_style = 'darker' --oceanic, deep ocean, palenight 
 
 -- Aquarium vim
 
--- vim.cmd[[colorscheme material]]
+vim.cmd[[colorscheme material]]
 ---------------------------- OPTIONS ------------------------
 vim.g.everforest_background = "hard"
 vim.opt.number = true
@@ -218,6 +228,7 @@ require('lualine').setup {
     icons_enabled = false,
     theme = 'aylin',
     component_separators = '|',
+    theme = "material",
     section_separators = '',
   }
 }
@@ -329,7 +340,6 @@ require('bufferline').setup {
     show_close_icon = true,
     show_tab_indicators = true,
     persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
-    separator_style = "slant",
     enforce_regular_tabs = false,
     always_show_bufferline = true,
   }
@@ -354,6 +364,7 @@ lsp.ensure_installed({
 	'gopls',
 	'eslint',
 	'vuels',
+	'rust_analyzer'
 })
 
 local cmp = require("cmp")
